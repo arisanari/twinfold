@@ -1,6 +1,6 @@
 # Twinfold MVP定義
 
-> ステータス: M0決定版
+> ステータス: M0意思決定ベースライン（残課題はIssueで継続管理）
 > 決定日: 2026-08-17
 > 対象: M1 Devnet MVP〜M4 Closed Beta
 > 上位文書: [product-requirements.md](./product-requirements.md)
