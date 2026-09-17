@@ -38,7 +38,7 @@ MVPは、次を実証する。
 - Solana devnet上のMetaplex Core Asset
 - wallet署名、owner取得、実transfer
 - My Collection
-- Unity／iOS ARでのPlace、Pull、Appear／Disappear
+- iOS AR（SwiftUI + RealityKit + ARKit）でのPlace、Pull、Appear／Disappear
 - Vaulted／Physical Ownership
 - redeem dry run、Asset失効、Provenance Passport
 - collectorとsupplierの検証
@@ -74,7 +74,7 @@ USDC purchaseはP0ではない。支払いとAsset移転をatomicに実装でき
 | Wallet | 署名を検証し、秘密鍵を保存しない |
 | Solana | mint、owner取得、transferを実transactionで確認できる |
 | Collection | 現在ownerのAssetだけをMy Collectionへ表示する |
-| iOS AR | Unity／AR Foundation／ARKit版が実機で起動し、camera、平面検出、配置が動く |
+| iOS AR | SwiftUI／RealityKit／ARKit版が実機で起動し、camera、平面検出、配置が動く |
 | Spatial | 初見ユーザーがPlaceとPullを実行できる |
 | Transfer | confirmed後5分以内に旧ownerから消え、新ownerへ反映する |
 | State | pending、confirmed、failedを区別し、失敗から復旧できる |
@@ -146,6 +146,9 @@ Waitlistと実取引は勝ちラインであり、Working Demoを遅らせない
 - [ ] Go-to-market、demand validation、distribution plan
 - [ ] 期間前の既存コードと、9/14〜10/12に完成した作業の開示
 - [ ] 1分以内のweekly updateを可能な限り提出
+- [ ] Demo video内でDemand Validationの数値（interview件数、waitlist等）を画面表示する
+- [ ] Pitch videoはteam／problem／target user／traction、Demo videoはtech stack／Solana統合／機能ウォークスルーに役割を分ける
+- [ ] Founder–Market Fitとして、切手ドメインでの接点やsupplier／collectorとの会話を1〜2件ナレーションに入れる
 - [ ] 10/11を内部締切として提出内容を確認
 
 ## 11. Go／Conditional Go／Pivot

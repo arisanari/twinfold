@@ -22,7 +22,7 @@
 → Assetが失効しPassportが残る
 ~~~
 
-Apple Vision ProはHero／secondary demoとする。iOSの必須E2Eが安定するまで、PolySpatial対応をP0にしない。
+Apple Vision ProはHero／secondary demoとする。iOSの必須E2Eが安定するまで、Vision Pro固有の作り込みをP0にしない。
 
 ## 2. 開発原則
 
@@ -45,17 +45,17 @@ Solana devnet / Helius
           ↓
 Twinfold API + Core Models
        ↙             ↘
-Next.js Web       Unity Spatial Experience
+Next.js Web       TwinfoldCore + TwinfoldSpatial (Swift Package)
                        ↓
-              iOS AR Adapter / ARKit
+              apps/ios  (SwiftUI + ARKit Adapter)
                        ↓
                     iPhone
 
 Secondary:
-Core Models → existing SwiftUI / RealityKit prototype → Vision Pro
+TwinfoldCore + TwinfoldSpatial → apps/visionos (RealityView) → Vision Pro
 ~~~
 
-### Unity共通層
+### 共通層（Swift Package）
 
 - Asset、Provenance、Entitlementの表示
 - Place、Pull、Appear、Disappear
@@ -65,7 +65,7 @@ Core Models → existing SwiftUI / RealityKit prototype → Vision Pro
 
 ### iOS AR Adapter
 
-- AR FoundationとApple ARKit XR Plugin
+- ARKit（ARView、ARWorldTrackingConfiguration）
 - camera permissionとAR session
 - 平面検出、raycast、anchor
 - touch入力、移動、回転、scale
@@ -73,14 +73,14 @@ Core Models → existing SwiftUI / RealityKit prototype → Vision Pro
 
 ### Vision Pro
 
-- 既存SwiftUI／RealityKit prototypeを保持
-- 同じAsset JSONを表示できればHero Demoへ使う
-- Unity／PolySpatial移植はiOS E2E完成後のP1
+- 既存SwiftUI／RealityKit prototypeを同じSwift Packageへ接続する
+- 同じfixture／Assetを表示できればHero Demoへ使う
+- Hero Demo録画はFinal Buildで余力があれば
 - Vision Pro固有機能をiOS共通層へ入れない
 
 ## 4. 最初に固定する契約
 
-Web、API、Unityが同じJSONを読み込む。型の実体は [Technical Architecture](./architecture.md) 第4節。
+Web、API、Swift Package（iOS／visionOS）が同じJSONを読み込む。型の実体は [Technical Architecture](./architecture.md) 第4節。
 
 - TwinfoldAsset: id、address、owner、title、display、provenance、physical
 - ProvenanceEvent: kind、source、status、transaction、slot、occurredAt
@@ -103,8 +103,7 @@ MockAssetProviderとSolanaAssetProviderは同じ型を返す。fixtureは画面�
 - Positioning、P0、Out of Scopeを固定
 - 既存Web／visionOSの実装状態を記録
 - 開幕前のcommit、screen recording、未実装一覧をbaselineとして保存
-- Unity versionを固定し、iOS Build Supportを導入
-- AR Foundation／ARKit XR Pluginのversionを固定
+- Xcode、iOS deployment target、XcodeGenの構成を固定し、`apps/ios` を生成
 - iPhone Development Buildの署名・起動方法を確認
 - TestFlightを使うか、対面Development Buildに限定するか決める
 - 権利上安全なReference Asset候補を最低1点決める
@@ -137,7 +136,7 @@ Done: 説明なしで Place → Pull → Disappear を完走できる。1分week
 4. transactionをProvenanceEventへ正規化
 5. Web TimelineとMy Collectionへ表示
 6. WebからiOSへ短期sessionを渡す
-7. Unity API clientをSolanaAssetProviderへ接続
+7. iOS appのAssetProviderをSolanaAssetProviderへ接続
 8. 実transfer後にEntitlementを再評価
 9. 旧ownerからDisappear、新ownerへAppear
 
@@ -205,7 +204,7 @@ Done: MVP Acceptance Criteriaの必須証拠が揃い、動画だけでも価値
 
 ### iPhone P0
 
-- [ ] Unity AR Buildが実機で起動
+- [ ] iOS AR Buildが実機で起動
 - [ ] camera permissionとAR sessionが正常
 - [ ] 平面検出とtap placementが動く
 - [ ] touchで選択、移動、scaleできる
@@ -230,4 +229,4 @@ Done: MVP Acceptance Criteriaの必須証拠が揃い、動画だけでも価値
 | Reference Assetの権利未確定 | 権利上安全な別個体（クラシック切手・著作権消滅図案）へ切り替える |
 | RWA Layerが間に合わない | Physical情報とredeem stateをfixtureと明示し、虚偽の実運用を示さない |
 | Vision Pro対応が不安定 | Hero Demoを外し、iOS ARの完成度へ集中する |
-| 複数platformで開発が拡散 | Android、Quest、PolySpatialを停止し、iOSへ集中する |
+| 複数platformで開発が拡散 | Android、Questを停止し、iOSへ集中する |
