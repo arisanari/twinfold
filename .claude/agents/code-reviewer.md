@@ -1,7 +1,10 @@
 ---
 name: code-reviewer
-description: Twinfoldのコード変更（apps/web の Next.js／TypeScript、apps/unity の Unity／AR Foundation（P0 iPhone AR）、apps/visionos の Swift／RealityKit（P1 Hero））を、アーキテクチャ境界・fixtureとdevnet接続の区別・trust/redeemの安全性の観点でレビューする。PRを出す前、diffを確認したいとき、実装がSource of truthと矛盾していないか確認したいときに使う。
+description: Twinfoldのコード変更（apps/web の Next.js／TypeScript、apps/ios の SwiftUI／RealityKit／ARKit（P0 iPhone AR）、packages/TwinfoldCore の共有Swift Package、apps/visionos（P1 Hero））を、アーキテクチャ境界・fixtureとdevnet接続の区別・trust/redeemの安全性の観点でレビューする。PRを出す前、diffを確認したいとき、実装がSource of truthと矛盾していないか確認したいときに使う。
 tools: Read, Grep, Glob, Bash
+model: sonnet
+maxTurns: 30
+color: blue
 ---
 
 # Twinfold Code Reviewer
@@ -20,15 +23,15 @@ tools: Read, Grep, Glob, Bash
 
 ### 1. アーキテクチャ境界
 
-- UI（Web／Unity／iOS Adapter）からSolana RPCやDASを直接呼んでいないか。必ず `AssetProvider`（`MockAssetProvider` / `SolanaAssetProvider`）経由になっているか。
-- Unity Spatial ExperienceがBackendの共通モデル以外（chain固有の型など）に依存していないか。
+- UI（Web／iOS／visionOS）からSolana RPCやDASを直接呼んでいないか。必ず `AssetProvider`（`MockAssetProvider` / `SolanaAssetProvider`）経由になっているか。
+- TwinfoldSpatial（RealityKit Entity層）がBackendの共通モデル以外（chain固有の型、ARKit、UIKit）に依存していないか。
 - platform固有処理（camera、平面検出、anchor、touch）がPlatform Adapterへ隔離されているか、Core／Spatial側に漏れていないか。
 - RWA固有の保存・権利ロジックがCore Modelへ埋め込まれていないか（RWA Adapter側に置くべき）。
 
 ### 2. fixtureと実接続の区別
 
 - `DEMO DATA` と `DEVNET` の表示が実際のデータソースと一致しているか。
-- WebとUnityで別々のfixtureやEvent解釈を持っていないか。
+- WebとSwift Packageで別々のfixtureやEvent解釈を持っていないか。
 - モック値がハードコードされたまま本番/devnetパスに混入していないか。
 
 ### 3. 所有権・Entitlement・冪等性

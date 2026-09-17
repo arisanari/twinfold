@@ -6,8 +6,8 @@
 
 - **Twinfold is the ownership layer for real-world collectibles, starting with vintage Japanese postage stamps.**
 - 提出先: Crypto World's Fair 2026（Colosseum）。開催 2026-09-14〜2026-10-12、内部締切 10/11。
-- Primary ClientはiPhone AR（Unity + AR Foundation + ARKit XR Plugin）。Apple Vision ProはHero／secondary（P1）で、既存 `apps/visionos` はfallback用に保持する。
-- 2026-09-11にbeachheadをアニメ原画から切手へ切り替えた。「原画」「Vision Pro実機がMVP」と書かれた文書・コード・Issueは古い。見つけたら直す前に指摘する。
+- Primary ClientはiPhone AR（SwiftUI + RealityKit + ARKit、`apps/ios`）。Apple Vision Pro（`apps/visionos`）はHero／secondary（P1）で、同じSwift Package `packages/TwinfoldCore` を使う。2026-09-18にUnityから切り替えた。
+- 2026-09-11にbeachheadをアニメ原画から切手へ切り替えた。「原画」「Vision Pro実機がMVP」「Unity／AR Foundation」と書かれた文書・コード・Issueは古い。見つけたら直す前に指摘する。
 - Webはwallet、取引、redeem、比較Timeline。Spatial ClientはPlace／Unfold／Pull／Appear／Disappear。
 
 ## 2. 正本の置き場と読む順
@@ -37,7 +37,7 @@ Notionを読めない環境では、第1節の要約を前提として進め、�
 
 ## 3. 必ず守る規則
 
-- UI（Web／Unity／Swift）からSolana RPC／DASを直接呼ばない。`AssetProvider`（Mock／Solana）経由にする。
+- UI（Web／iOS／visionOS）からSolana RPC／DASを直接呼ばない。`AssetProvider`（Mock／Solana）経由にする。
 - `MockAssetProvider` と `SolanaAssetProvider` は同じ共通モデルを返す。fixtureは画面に `DEMO DATA`、実接続は `DEVNET` と表示する。
 - platform固有処理（camera、平面検出、anchor、touch）はPlatform Adapterに隔離する。
 - transfer／redeemは `pending` → `confirmed`／`failed` を区別し、transaction signatureまたはrequest IDで冪等化する。
@@ -52,21 +52,58 @@ Notionを読めない環境では、第1節の要約を前提として進め、�
 ```text
 apps/web/       Next.js 16 / React 19 / TypeScript。UIプロトタイプ（fixture）
 apps/visionos/  SwiftUI + RealityKit。XcodeGen（project.yml）。P1 Hero Demo
-apps/unity/     未作成。Unity + AR Foundation。P0 iPhone AR
+apps/ios/       SwiftUI + RealityKit + ARKit。XcodeGen。P0 iPhone AR
+packages/TwinfoldCore/  iOSとvisionOSで共有するSwift Package（共通モデル、Provider、Spatial Entity）
 docs/           実装側の正本（mvp、build-order、architecture）
 .env.colosseum/ ローカル専用メモ（git管理外）
 ```
 
 - Web: `cd apps/web && npm install && npm run dev`。検証は `npm run build` と `npm run lint`
 - Web env: `apps/web/.env.example` を `apps/web/.env.local` にコピーして実値を入れる
+- iOS: `cd apps/ios && xcodegen generate` の後、`ios-realitykit-ar` skill の `xcodebuild` コマンド
 - visionOS: `cd apps/visionos && xcodegen generate && open TwinfoldVision.xcodeproj`
+- 共通Package: `cd packages/TwinfoldCore && swift build`
 
-## 5. エージェントとskillの置き場
+## 5. 役割分担と委譲（クレジット運用）
 
-実体は `.claude/` に置く。`.agents/skills/*` と `CLAUDE.md` はsymlink。
+本体セッション（オーケストレーター、通常はFable）は判断・分解・最終レビューだけを行い、手を動かす作業はSonnet／Haikuのagentへ委譲する。
 
-- `.claude/skills/twinfold-hackathon-engineer` — 「今日何する」、実装、進捗レビュー、GitHub Project同期
-- `.claude/agents/code-reviewer` — 読み取り専用のコードレビュー
+- **本体がやること**: `today` で今日を決める、implementerへの指示を書く、返ってきたdiffを読む、ユーザーへの確認、Notion／GitHub Projectへの書き込み。
+- **本体がやらないこと**: 複数fileにまたがる実装、build／lintの実行、文書の矛盾検査、文言検査。これらはagentに回す。
+- **本体が自分でコードを書いてよい例外**: implementerへの指示を書くより短く済む一行修正。
+
+### implementerへ渡す指示の型
+
+```text
+対象: apps/web/lib/contract.ts と fixtures/demo/assets.json
+期待結果: 切手Reference Asset 1点がTwinfoldAsset型で定義され、Webの一覧に DEMO DATA ラベル付きで表示される
+確認方法: cd apps/web && npm run build が成功し、npm run dev で /collection に1件表示される
+境界: apps/visionos と apps/unity には触らない
+```
+
+### agent一覧
+
+| agent | model | 役割 |
+|---|---|---|
+| `implementer` | sonnet | 指示された実装を行い、build を通してdiffと検証結果を返す。`core-contract`／`ios-realitykit-ar` を先読み |
+| `code-reviewer` | sonnet | 境界、fixture区別、Entitlement、冪等性の読み取り専用レビュー |
+| `doc-consistency` | sonnet | README、docs/、AGENTS.md、Notion要約、Project 5 Issueの矛盾検出（未作成） |
+| `claims-reviewer` | sonnet | UI文言、README、Pitch、Landingの禁止表現検査（未作成） |
+| `build-verifier` | haiku | Web build／lint、iOS／visionOSの `xcodebuild`、`swift build` の結果だけ返す（未作成） |
+
+### skill一覧
+
+| skill | 実行 | 役割 |
+|---|---|---|
+| `today` | 本体 | 今日の分解、GitHub Project 5同期、Notionの読み書き |
+| `core-contract` | implementerが読む知識 | 共通モデルとfixtureをWebとSwift Package（iOS・visionOS共有）で同時に整合させる手順 |
+| `ios-realitykit-ar` | implementerが読む知識 | SwiftUI + RealityKit + ARKitのiPhone AR構成、共有Swift Package、build、実機チェック |
+| `solana-devnet` | implementerが読む知識 | Metaplex Core、Helius DAS、Event正規化、test wallet（未作成、Phase 2前に作る） |
+| `colosseum-research` | fork、sonnet | 入賞パターン調査。一回限り |
+| `e2e-evidence` | fork、sonnet | E2E証拠収集、weekly update生成（未作成） |
+| `submission` | fork、sonnet | 提出チェック、事前開発の開示、clean clone再現（未作成） |
+
+実体は `.claude/` に置く。`.agents/skills/*` と `CLAUDE.md` はsymlinkで、Codexは同じskill本文を読む（model指定はCodex側の設定に従う）。
 
 ## 6. 完了報告の型
 
