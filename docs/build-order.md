@@ -200,6 +200,18 @@ Done: MVP Acceptance Criteriaの必須証拠が揃い、動画だけでも価値
 - Primary E2Eでの役割を説明できる
 - 制約と証拠をIssueまたはREADMEへ残している
 
+### 証拠ファイルの置き場
+
+画面録画、transaction signature、失効時間のログなどの証拠は、repoに入れずTwinfold共通のGoogle Drive（アカウントはNotionの外部サービス台帳を参照）に置く。
+
+```text
+Twinfold/evidence/
+  YYYY-MM-DD_<phase>_<内容>.mp4   例: 2026-09-18_phase1_ios-place-pull-disappear.mp4
+  YYYY-MM-DD_<phase>_<内容>.md    transaction signature、計測値、環境
+```
+
+置いたら共有リンクを該当GitHub Issueのコメントと、Notionスケジュールの該当週に貼る。weekly updateと提出時の「開幕後に完成した作業の開示」はこのフォルダから作る。
+
 ## 8. 実機チェック
 
 ### iPhone P0
