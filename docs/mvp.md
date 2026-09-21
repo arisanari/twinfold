@@ -74,7 +74,7 @@ USDC purchaseはP0ではない。支払いとAsset移転をatomicに実装でき
 | Wallet | 署名を検証し、秘密鍵を保存しない |
 | Solana | mint、owner取得、transferを実transactionで確認できる |
 | Collection | 現在ownerのAssetだけをMy Collectionへ表示する |
-| iOS AR | SwiftUI／RealityKit／ARKit版が実機で起動し、camera、平面検出、配置が動く |
+| iOS AR | SwiftUI／RealityKit／ARKit版が実機で起動し、camera、空中配置、回転・scaleが動く |
 | Spatial | 初見ユーザーがPlaceとPullを実行できる |
 | Transfer | confirmed後5分以内に旧ownerから消え、新ownerへ反映する |
 | State | pending、confirmed、failedを区別し、失敗から復旧できる |

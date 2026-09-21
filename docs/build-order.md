@@ -1,6 +1,6 @@
 # Twinfold Build Order
 
-> 最終更新: 2026-09-18
+> 最終更新: 2026-09-21
 >
 > 役割: 実装順、各フェーズのDone、Definition of Done、blocker時の切り替えを定義する。日付はNotionの[スケジュール](https://app.notion.com/p/3de2b198e4f4814dafa8ce10241a0925)とGitHub Project 5を正とし、ここには書かない。
 >
@@ -67,7 +67,7 @@ TwinfoldCore + TwinfoldSpatial → apps/visionos (RealityView) → Vision Pro
 
 - ARKit（ARView、ARWorldTrackingConfiguration）
 - camera permissionとAR session
-- 平面検出、raycast、anchor
+- camera-relative anchor（空中配置）、touch（tap／drag／pinch）
 - touch入力、移動、回転、scale
 - app lifecycleと端末Build設定
 
@@ -117,8 +117,8 @@ Done: iPhoneで空のAR sceneが起動し、開幕後に作る範囲と事前コ
 
 1. 公式track、judge、提出項目を再確認
 2. Reference Asset fixtureをMy Collectionへ表示
-3. camera上で平面を検出
-4. tapでAssetをPlace
+3. tapでカメラ正面の空中にAssetをPlace
+4. ドラッグで回転、ピンチでscale
 5. Assetから2〜3個のprovenance nodeをPull
 6. 疑似transferでpending→confirmed→Disappear
 7. resetを実装
@@ -218,7 +218,7 @@ Twinfold/evidence/
 
 - [ ] iOS AR Buildが実機で起動
 - [ ] camera permissionとAR sessionが正常
-- [ ] 平面検出とtap placementが動く
+- [ ] tapで空中配置ができ、ドラッグ回転・ピンチscaleが動く
 - [ ] touchで選択、移動、scaleできる
 - [ ] provenance textが読める
 - [ ] background／foreground復帰後も継続できる
