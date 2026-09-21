@@ -12,7 +12,7 @@ description: TwinfoldAsset／ProvenanceEvent／Entitlement等の共通モデル�
 | 種類 | 場所 | 役割 |
 |---|---|---|
 | 型の正本 | `apps/web/lib/contract.ts` | `TwinfoldAsset`、`ProvenanceEvent`、`ProvenanceKind`、`DisplayDescriptor`、`PhysicalDescriptor`、`Entitlement`、`RedeemedProvenancePassport`、`AssetProvider` interface |
-| fixtureの正本 | `fixtures/demo/assets.json`、`fixtures/demo/wallets.json` | 切手Reference Asset 1点（必要なら2〜3点）と、transfer元・先のtest wallet |
+| fixtureの正本 | `fixtures/demo/assets.json`、`fixtures/demo/wallets.json` | 浮世絵Reference Asset 1点（DEMO DATA、主役、額装カード表現）＋こけしReference Asset 1点（棚の拡張例、USDZ表現）の2点構成と、transfer元・先のtest wallet |
 | Swiftの写し | `packages/TwinfoldCore/Sources/TwinfoldCore/Models/*.swift` | `Codable` の写し。`CodingKeys` はJSONのkey名と1対1。iOSとvisionOSが共有 |
 | Webのfixture | `apps/web/lib/fixtures/demo/` | `scripts/sync-fixtures.sh` のコピー先。静的import |
 | Swiftのfixture | `packages/TwinfoldCore/Sources/TwinfoldCore/Resources/fixtures/demo/` | 同スクリプトのコピー先。`Bundle.module` から読む |
@@ -21,13 +21,13 @@ description: TwinfoldAsset／ProvenanceEvent／Entitlement等の共通モデル�
 
 ## 型の不変条件
 
-- `id` はTwinfold内部の安定ID（例: `tf-stamp-001`）。`address` はSolana上の外部識別子。fixtureでは `address` を `DEMO-...` で始める。
+- `id` はTwinfold内部の安定ID（例: `tf-ukiyoe-001`）。`address` はSolana上の外部識別子。fixtureでは `address` を `DEMO-...` で始める。
 - `network` はMVPでは `"devnet"` 固定。
 - `ProvenanceEvent.source` は `"onchain" | "offchain_evidence" | "twinfold_interpretation"` の3値。UIで混同しない。
 - `ProvenanceEvent.status` は `"pending" | "confirmed" | "failed"`。fixtureは `confirmed` を基本にし、pending／failedは操作で作る。
 - `ProvenanceKind` はMVP必須の `minted | transferred | rwa_verified | vaulted | redeemed` だけを実装する。Post-MVPの種類を先に増やさない。
 - `Entitlement.canDisplay` の判定条件（session、chain owner一致、active、display rights、frozen／redeemed／exception除外）を弱めない。
-- fixtureに実walletの秘密情報、配送先、個人名、権利未確認の画像パスを入れない。画像は `apps/web/public/artworks/` の自作SVGか、権利上安全な切手画像だけを使う。
+- fixtureに実walletの秘密情報、配送先、個人名、権利未確認の画像パスを入れない。画像は `apps/web/public/artworks/` の自作SVGか、権利上安全な浮世絵・こけしの画像だけを使う。
 - 日時はISO 8601（UTC）。金額は持たない（MVPでは購入を実装しない）。
 - Swift側のenumは `String` raw valueで、未知の値はdecode失敗にせず `unknown` へ落とすか、失敗を明示的にログする。黙って読み飛ばさない。
 

@@ -2,12 +2,15 @@
 
 `CLAUDE.md` はこのファイルへのsymlink。Claude Code／Codexのどちらも、まずここを読む。
 
-## 1. いま何を作っているか（2026-09-18時点）
+## 1. いま何を作っているか（2026-09-21時点）
 
-- **Twinfold is the ownership layer for real-world collectibles, starting with vintage Japanese postage stamps.**
+- **Twinfold is the ownership layer for real-world collectibles. Beachhead: display collectibles, starting with ukiyo-e prints on your wall.**
+- 最初の供給とデモは江戸・明治の浮世絵・古版画（著作権消滅、国際的なディーラー・オークション・状態評価〈摺り、退色、裏打ち、トリミング〉が確立、原摺りは新規供給がない、退色リスクがあるのでVault保管と壁での鑑賞がトレードオフになる、贋作・後摺りが多いので来歴と状態の記録を分けて残す価値がある）。
+- Spatial promise: 買った瞬間に、自分の壁に掛かる。現物はVaultのまま。売れば壁から消える。保管中に買った物が、手元の実物コレクション（本物の額装作品）の隣に違和感なく並ぶのが中核体験。
+- 拡張（次）: 棚（shelf）= フィギュア（メーカー公認3D前提、Metaplex Core royaltyで還元する未検証の仮説）と郷土玩具・伝統こけし（3D twinの例として2件目のfixtureに残す）。切手は履歴にだけ残す。
 - 提出先: Crypto World's Fair 2026（Colosseum）。開催 2026-09-14〜2026-10-12、内部締切 10/11。
 - Primary ClientはiPhone AR（SwiftUI + RealityKit + ARKit、`apps/ios`）。Apple Vision Pro（`apps/visionos`）はHero／secondary（P1）で、同じSwift Package `packages/TwinfoldCore` を使う。2026-09-18にUnityから切り替えた。
-- 2026-09-11にbeachheadをアニメ原画から切手へ切り替えた。「原画」「Vision Pro実機がMVP」「Unity／AR Foundation」と書かれた文書・コード・Issueは古い。見つけたら直す前に指摘する。
+- beachhead変更履歴: アニメ原画（〜2026-09-11）→ 切手（2026-09-11〜2026-09-21）→ 棚に飾るコレクティブル（2026-09-21、同日中に見直し）→ 壁に掛ける浮世絵・版画（2026-09-21確定）。**提出までのbeachhead変更はこれが最後で、以後は変更しない。**「切手がbeachhead」「棚に飾るコレクティブルがbeachhead」「原画」「Vision Pro実機がMVP」「Unity／AR Foundation」と書かれた文書・コード・Issueは古い。見つけたら直す前に指摘する。切手は履歴にだけ残り、棚（フィギュア・こけし・郷土玩具）は拡張カテゴリとして残る。
 - Webはwallet、取引、redeem、比較Timeline。Spatial ClientはPlace／Unfold／Pull／Appear／Disappear。
 
 ## 2. 正本の置き場と読む順
@@ -26,7 +29,7 @@
 親ページ: https://app.notion.com/p/3de2b198e4f4800cafc1c7ac9d3bb465
 
 - スケジュール（週別カレンダー）: https://app.notion.com/p/3de2b198e4f4814dafa8ce10241a0925
-- PRD（Positioning、顧客、なぜSolana／Spatial／切手、事業モデル）: https://app.notion.com/p/3de2b198e4f4812ea49ce250b0d3b334
+- PRD（Positioning、顧客、なぜSolana／Spatial／浮世絵、事業モデル）: https://app.notion.com/p/3de2b198e4f4812ea49ce250b0d3b334
 - GTM実行計画（需要検証、Pitch）: https://app.notion.com/p/3de2b198e4f481c7a944dcad01ef9fd0
 - Supplier List: https://app.notion.com/p/3de2b198e4f481d7affdcd1f1d9ec768
 - 外部サービス・アカウント台帳: https://app.notion.com/p/3de2b198e4f4810e9854daf4794dc916
@@ -76,7 +79,7 @@ docs/           実装側の正本（mvp、build-order、architecture）
 
 ```text
 対象: apps/web/lib/contract.ts と fixtures/demo/assets.json
-期待結果: 切手Reference Asset 1点がTwinfoldAsset型で定義され、Webの一覧に DEMO DATA ラベル付きで表示される
+期待結果: 浮世絵Reference Asset 1点がTwinfoldAsset型で定義され、Webの一覧に DEMO DATA ラベル付きで表示される
 確認方法: cd apps/web && npm run build が成功し、npm run dev で /collection に1件表示される
 境界: apps/visionos と apps/unity には触らない
 ```

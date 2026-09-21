@@ -4,7 +4,9 @@
 >
 > 開催期間: 2026-09-14〜2026-10-12
 >
-> 最終更新: 2026-09-18
+> 最終更新: 2026-09-21
+>
+> beachhead変更履歴: アニメ原画（〜2026-09-11）→ 切手（2026-09-11〜2026-09-21）→ 棚に飾るコレクティブル（2026-09-21、同日中に見直し）→ 壁に掛ける浮世絵・版画（2026-09-21確定、最初の供給とデモは江戸・明治の浮世絵・古版画）。**提出までのbeachhead変更はこれが最後で、以後は変更しない。**「切手がbeachhead」「棚に飾るコレクティブルがbeachhead」と書かれた記述は古い。切手は履歴にだけ残り、棚（フィギュア・こけし・郷土玩具）は拡張カテゴリとして残る。
 
 ## 1. 役割
 
@@ -19,9 +21,11 @@ Issueの完了数ではなく、E2E、実物、ユーザー証拠、提出物で
 
 ## 2. 提出時の主張
 
-> **Twinfold is the ownership layer for real-world collectibles, starting with vintage Japanese postage stamps.**
+> **Twinfold is the ownership layer for real-world collectibles. Beachhead: display collectibles, starting with ukiyo-e prints on your wall.**
 
 > **Twinfold turns vaulted collectibles into transferable onchain ownership you can experience in space and redeem physically.**
+
+> 買った瞬間に、自分の壁に掛かる。現物はVaultのまま。売れば壁から消える。
 
 MVPは、次を実証する。
 
@@ -33,18 +37,19 @@ MVPは、次を実証する。
 
 ## 3. P0
 
-- 権利上安全な実物の希少切手1点（クラシック切手または著作権が消滅した図案の記念切手）
+- 権利上安全な実物の浮世絵・古版画1点（版元・絵師・出版年代が分かり、著作権消滅、摺り・退色等の状態評価ができるもの）
+- Vault入庫時に高解像スキャンで作成した実寸1:1の額装カード（画像と額の厚みを持つ。状態記録のoff-chain evidenceと表示データを兼ねる。買い手はスキャンせず、Object Captureも不要）
 - Asset登録、Physical情報、evidence、rights、custody
 - Solana devnet上のMetaplex Core Asset
 - wallet署名、owner取得、実transfer
 - My Collection
-- iOS AR（SwiftUI + RealityKit + ARKit）でのPlace、Pull、Appear／Disappear
+- iOS AR（SwiftUI + RealityKit + ARKit）でのPlace、Pull、Appear／Disappear。実寸表示（scaleを触らない）、壁（垂直面）への配置、環境光の一致、額の影を満たすこと
 - Vaulted／Physical Ownership
 - redeem dry run、Asset失効、Provenance Passport
 - collectorとsupplierの検証
 - Presentation video、Demo video、README、GitHub
 
-USDC purchaseはP0ではない。支払いとAsset移転をatomicに実装できた場合だけ追加する。
+USDC purchaseはP0ではない。支払いとAsset移転をatomicに実装できた場合だけ追加する。こけしReference Asset（棚カテゴリの拡張例、USDZ twin表現）はfixtureの2点目としてP0に含めてよいが、必須ではない。フィギュアのroyalty還元（Metaplex Coreのroyaltyで二次流通からメーカーへ還元）は未検証の仮説であり、P0では実装しない。
 
 ## 4. 必須E2E
 
@@ -76,6 +81,7 @@ USDC purchaseはP0ではない。支払いとAsset移転をatomicに実装でき
 | Collection | 現在ownerのAssetだけをMy Collectionへ表示する |
 | iOS AR | SwiftUI／RealityKit／ARKit版が実機で起動し、camera、空中配置、回転・scaleが動く |
 | Spatial | 初見ユーザーがPlaceとPullを実行できる |
+| Spatial Fidelity | 主役（浮世絵、額装カード）は実寸（scaleを触らない）、壁（垂直面）への配置、環境光の一致、額の影を満たす。拡張（こけし、USDZ twin）は実寸、LiDAR遮蔽、接地影を満たす。いずれも実物コレクションの隣に置いて違和感がない |
 | Transfer | confirmed後5分以内に旧ownerから消え、新ownerへ反映する |
 | State | pending、confirmed、failedを区別し、失敗から復旧できる |
 | Redeem | 申請後に流通Assetをlock／burn／retireし、二重移転を防ぐ |
@@ -148,7 +154,7 @@ Waitlistと実取引は勝ちラインであり、Working Demoを遅らせない
 - [ ] 1分以内のweekly updateを可能な限り提出
 - [ ] Demo video内でDemand Validationの数値（interview件数、waitlist等）を画面表示する
 - [ ] Pitch videoはteam／problem／target user／traction、Demo videoはtech stack／Solana統合／機能ウォークスルーに役割を分ける
-- [ ] Founder–Market Fitとして、切手ドメインでの接点やsupplier／collectorとの会話を1〜2件ナレーションに入れる
+- [ ] Founder–Market Fitとして、浮世絵・古版画ドメインでの接点やsupplier／collectorとの会話を1〜2件ナレーションに入れる
 - [ ] 10/11を内部締切として提出内容を確認
 
 ## 11. Go／Conditional Go／Pivot

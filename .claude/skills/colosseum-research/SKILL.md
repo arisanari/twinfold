@@ -9,7 +9,7 @@ allowed-tools: WebSearch, WebFetch, Read
 
 # Colosseum Research
 
-Twinfold（Solana × iPhone AR × ヴィンテージ日本切手のRWA）の提出に向けて、Colosseumの審査で何が評価されてきたかを調べる。戦略は変えない。示唆を出すだけ。
+Twinfold（Solana × iPhone AR × 壁に掛ける浮世絵・版画のRWA、拡張は棚〈郷土玩具・こけし〉）の提出に向けて、Colosseumの審査で何が評価されてきたかを調べる。戦略は変えない。示唆を出すだけ。
 
 ## 前提
 
@@ -38,5 +38,5 @@ Twinfold（Solana × iPhone AR × ヴィンテージ日本切手のRWA）の提�
 ## 守ること
 
 - 分からないことは「未確認」と書く。入賞作品名や賞金額を推測で埋めない。
-- Twinfoldの戦略（切手beachhead、iPhone AR P0）を変える提案はしない。提出上の強調点の示唆に留める。
+- Twinfoldの戦略（壁に掛ける浮世絵・版画beachhead、iPhone AR P0）を変える提案はしない。提出上の強調点の示唆に留める。
 - 結果はテキストで返す。NotionやGitHubへは書かない（書き込みはオーケストレーターが行う）。

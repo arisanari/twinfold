@@ -67,7 +67,7 @@ Vision Proはこの合格条件に含めない。iOSのE2Eが安定するまでV
 
 Statusは実作業に合わせて同期してよい。Priority、Milestone、日付は既存計画から機械的に整合させられる場合だけ更新する。期限変更、P0からの降格、Issueの新規作成・削除、別repositoryの変更は推奨案を示してユーザーの了承を得る。
 
-進捗確認時は次の不一致を報告する: `Done` だが証拠がない、`Todo` だが実装済み、Issue本文が現在の計画より古い（Vision Pro前提・原画前提のものを含む）、Target dateが依存順序と矛盾、重複Issue、P0なのにPrimary E2Eにも安全性にも寄与しない。
+進捗確認時は次の不一致を報告する: `Done` だが証拠がない、`Todo` だが実装済み、Issue本文が現在の計画より古い（Vision Pro前提・原画前提・切手beachhead前提・棚に飾るコレクティブルbeachhead前提のものを含む）、Target dateが依存順序と矛盾、重複Issue、P0なのにPrimary E2Eにも安全性にも寄与しない。
 
 ## Notionへの反映
 

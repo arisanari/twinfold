@@ -238,7 +238,7 @@ Twinfold/evidence/
 | TestFlightが間に合わない | 対面Development Buildで検証し、Demo videoを提出 |
 | iOS ARのanchor保存が不安定 | session内配置に限定し、再起動後永続化をP1へ移す |
 | Solana同期が未完成 | RPC refreshで状態変化を再取得し、制約を明示 |
-| Reference Assetの権利未確定 | 権利上安全な別個体（クラシック切手・著作権消滅図案）へ切り替える |
+| Reference Assetの権利未確定 | 権利上安全な別個体（別の絵師・版元の浮世絵、または著作権消滅図案の切手）へ切り替える |
 | RWA Layerが間に合わない | Physical情報とredeem stateをfixtureと明示し、虚偽の実運用を示さない |
 | Vision Pro対応が不安定 | Hero Demoを外し、iOS ARの完成度へ集中する |
 | 複数platformで開発が拡散 | Android、Questを停止し、iOSへ集中する |

@@ -36,14 +36,14 @@ apps/visionos/                既存 SwiftUI + RealityKit。TwinfoldCore／Twinf
 ```
 
 - `TwinfoldCore` は Web の `apps/web/lib/contract.ts` の写し。JSON キー名と `CodingKeys` を 1 対 1 にする。手順は `core-contract` skill。
-- `TwinfoldSpatial` は platform 非依存。ARKit（session、camera transform）と UIKit gesture（tap／pan／pinch）は `apps/ios/TwinfoldAR/AR*.swift` だけが触る。平面検出と raycast は使わない（2026-09-21 に空中配置へ変更）。visionOS 側は `RealityView` で同じ Entity を置く。
+- `TwinfoldSpatial` は platform 非依存。ARKit（session、camera transform）と UIKit gesture（tap／pan／pinch）は `apps/ios/TwinfoldAR/AR*.swift` だけが触る。`card` 表現（額装の浮世絵）は垂直面（壁）への raycast 配置、壁が無ければ空中配置へ fallback。`model`（USDZ twin）は空中配置（2026-09-21）。visionOS 側は `RealityView` で同じ Entity を置く。
 - View と Controller は `AssetProvider` protocol だけに依存する。Solana、Helius、HTTP の詳細は将来の `ApiAssetProvider` に閉じる。
 - 購入、秘密鍵、配送先入力は iOS／visionOS に置かない。Web の担当。
 - 画面には Provider の `isDemoData` に応じて `DEMO DATA` か `DEVNET` を常時表示する。
 
 ## Phase 1（Testable Mock）で作るもの
 
-1. My Collection に fixture の切手 1 点
+1. My Collection に fixture の浮世絵 1 点
 2. AR 画面で tap するとカメラ正面 0.4m の空中に Place（`AnchorEntity(world:)`）。drag で回転、pinch で scale
 3. カード tap で provenance ノード 3 件を時系列に引き出す（Pull）
 4. 疑似 transfer: pending（半透明）→ confirmed → Disappear。failed は配置を維持して再試行導線
