@@ -23,3 +23,11 @@
 | なし | Metaplex Core royalty enforcement | 2026年9月時点の新規アップデートは検索範囲内で見つからず（既存のRoyalties plugin機能のみ確認） | developers.metaplex.com/smart-contracts/core/plugins/royalties |
 
 備考: 本セッションのegressプロキシでcolosseum.com系ドメインとcryptobriefing.comへの直接アクセスがブロックされ（`EGRESS_BLOCKED`）、WebSearchの要約経由でのみ確認。X／Discordはこのcloud環境では未接続のため未確認（オーナーが手動確認）。「壁に掛ける浮世絵・版画」「RWA」「AR」に直接関わる新規発表は今回の検索範囲では見つからず、戦略変更候補はなし。
+
+### 2026-09-23
+
+新着なし（確認先: blog、worldsfair、FAQ、検索）
+
+備考: WebSearch多数実行（track/prize内訳、judge、deadline、RWA/collectibles関連を含む）したが、2026-09-22ログ以降の新規発表・変更は確認できず。ヒットした情報（Solana/Hyperliquid/Tempo/Zcash各$100K、Ethereum/Base/Arbitrum/Robinhood各$25K、judge陣の言及等）はいずれも9月中旬の開催告知時点の情報の再掲。blog.colosseum.comへの直接アクセスは `EGRESS_BLOCKED` のためWebSearch要約経由のみで確認。track追加、judge新任、締切変更、提出項目変更、審査観点変更のいずれも無し。
+
+未取得: X（Chrome未接続）、Discord（同上）
