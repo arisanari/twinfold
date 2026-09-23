@@ -238,8 +238,25 @@ public enum AssetCardEntity {
             frame?.isEnabled = false
         case .failed:
             setTintAlpha(1.0, on: artwork, fallback: card)
+            setFrameColor(.red, on: frame)
             frame?.isEnabled = true
         }
+    }
+
+    /// Toggles a blue selection outline on a card built by `make(asset:)`
+    /// or `makeThinPlate(asset:)`, reusing the frame node that `apply(state:)`
+    /// shows in red for `failed`. Callers should only call this while the
+    /// entity's transfer state is `.idle`/`.confirmed` — `apply(state:)`
+    /// already owns the frame while `.pending`/`.failed`.
+    public static func setHighlighted(_ highlighted: Bool, on entity: Entity) {
+        guard let frame = entity.findEntity(named: frameName) else { return }
+        if highlighted { setFrameColor(.systemBlue, on: frame) }
+        frame.isEnabled = highlighted
+    }
+
+    private static func setFrameColor(_ color: SimpleMaterial.Color, on frame: Entity?) {
+        guard let model = frame as? ModelEntity else { return }
+        model.model?.materials = [SimpleMaterial(color: color, roughness: 1, isMetallic: false)]
     }
 
     /// Sets a `SimpleMaterial`'s tint alpha on `artwork` (the image plane)
