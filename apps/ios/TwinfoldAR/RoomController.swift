@@ -191,7 +191,7 @@ final class RoomController {
         pendingPreviewTransform = nil
         isPreviewDetected = false
 
-        let entity = AssetRepresentationEntity.make(asset: asset)
+        let entity = AssetRepresentationEntity.makeForWallPlacement(asset: asset)
         let anchor = AnchorEntity(world: matrix_identity_float4x4)
         anchor.addChild(entity)
         // A twin's own mesh origin isn't guaranteed to be its base (see
@@ -256,7 +256,7 @@ final class RoomController {
                 isPreviewDetected = false
                 return
             }
-            let transform = wallTransform(hit: hit, asset: asset)
+            let transform = wallTransform(hit: hit)
             previewAnchor.transform = Transform(matrix: transform)
             pendingPreviewTransform = transform
             pendingPreviewIsWall = true
@@ -567,7 +567,7 @@ final class RoomController {
     ) {
         guard let arView else { return }
         let anchor = AnchorEntity(world: transform)
-        let entity = AssetRepresentationEntity.make(asset: asset)
+        let entity = AssetRepresentationEntity.makeForWallPlacement(asset: asset)
         anchor.addChild(entity)
         arView.scene.addAnchor(anchor)
 
@@ -633,8 +633,12 @@ final class RoomController {
         return transform
     }
 
-    private func wallTransform(hit: ARRaycastResult, asset: TwinfoldAsset) -> simd_float4x4 {
-        let cardSize = AssetCardEntity.size(for: asset)
+    /// Positions a wall-placed asset flush against the wall (offset only by
+    /// `AssetCardEntity.paperWallOffset`, not by the fixture's `depthCm`) —
+    /// wall placement on iOS always renders as
+    /// `AssetCardEntity.makePaper(asset:)`, a paper sheet with essentially
+    /// no thickness, so the gap doesn't depend on the asset's own size.
+    private func wallTransform(hit: ARRaycastResult) -> simd_float4x4 {
         let hitTransform = hit.worldTransform
         let rawNormal = SIMD3<Float>(hitTransform.columns.1.x, hitTransform.columns.1.y, hitTransform.columns.1.z)
         let flattenedNormal = SIMD3<Float>(rawNormal.x, 0, rawNormal.z)
@@ -644,7 +648,7 @@ final class RoomController {
         let up = cross(forward, right)
 
         let hitPosition = SIMD3<Float>(hitTransform.columns.3.x, hitTransform.columns.3.y, hitTransform.columns.3.z)
-        let position = hitPosition + forward * (cardSize.depth / 2 + 0.002)
+        let position = hitPosition + forward * AssetCardEntity.paperWallOffset
 
         var transform = matrix_identity_float4x4
         transform.columns.0 = SIMD4<Float>(right, 0)

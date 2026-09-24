@@ -9,6 +9,11 @@ import TwinfoldCore
 /// state.
 struct RoomOverlayView: View {
     let controller: RoomController
+    /// Whether the bottom tray is open. When closed, the plain hint line
+    /// is hidden too (for a clean screenshot); the operation card and
+    /// transfer toast still show regardless, since those reflect an
+    /// explicit selection/action rather than idle guidance.
+    let isTrayOpen: Bool
 
     var body: some View {
         VStack {
@@ -36,7 +41,9 @@ struct RoomOverlayView: View {
                     // what's selected and what can be done, and a hint
                     // line above it just piles up / repeats that.
                     operationCard(for: asset)
-                } else {
+                } else if isTrayOpen {
+                    // Idle guidance only — hidden with the tray so a
+                    // closed tray gives a clean, uncluttered screenshot.
                     hintBar
                 }
             }

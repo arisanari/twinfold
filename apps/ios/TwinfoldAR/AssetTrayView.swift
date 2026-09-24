@@ -6,9 +6,15 @@ import TwinfoldCore
 /// Tapping a thumbnail starts a holding preview (unplaced) or selects the
 /// already-placed asset (same as tapping it in the AR scene). The heading
 /// opens the full list sheet (`CollectionView`).
+///
+/// `isOpen` is a separate, user-controlled open/close (handle pill only
+/// when closed, for a clean screenshot of the room), on top of the
+/// existing auto-collapse to just the header row while the operation card
+/// or transfer toast is on screen.
 struct AssetTrayView: View {
     let controller: RoomController
     @Binding var showsFullList: Bool
+    @Binding var isOpen: Bool
 
     /// Collapses the thumbnail row to just the header while the operation
     /// card or the transfer toast is on screen, so the two don't pile up
@@ -18,17 +24,45 @@ struct AssetTrayView: View {
     }
 
     var body: some View {
+        // Closed: only the capsule handle floats over the camera feed (no
+        // full-width material band), so the room can be screenshotted clean.
+        if isOpen {
+            openTray
+                .frame(maxWidth: .infinity)
+                .background(.ultraThinMaterial)
+        } else {
+            closedHandle
+                .frame(maxWidth: .infinity)
+        }
+    }
+
+    private var openTray: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Button {
-                showsFullList = true
-            } label: {
-                HStack {
-                    Text("コレクション \(controller.ownedAssets.count)点・未配置 \(controller.unplacedCount)")
-                        .font(.footnote.bold())
-                    Image(systemName: "chevron.up")
-                        .font(.caption2)
+            HStack {
+                Button {
+                    showsFullList = true
+                } label: {
+                    HStack {
+                        Text("コレクション \(controller.ownedAssets.count)点・未配置 \(controller.unplacedCount)")
+                            .font(.footnote.bold())
+                        Image(systemName: "chevron.up")
+                            .font(.caption2)
+                    }
+                    .foregroundStyle(.white)
                 }
-                .foregroundStyle(.white)
+
+                Spacer()
+
+                Button {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        isOpen = false
+                    }
+                } label: {
+                    Image(systemName: "chevron.down")
+                        .font(.caption.bold())
+                        .foregroundStyle(.white)
+                        .padding(6)
+                }
             }
             .padding(.horizontal, 16)
 
@@ -44,7 +78,30 @@ struct AssetTrayView: View {
             }
         }
         .padding(.vertical, 10)
-        .background(.ultraThinMaterial)
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    /// Small bottom-center handle shown when the tray is closed, so the
+    /// rest of the AR view is free (e.g. for a screenshot).
+    private var closedHandle: some View {
+        Button {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                isOpen = true
+            }
+        } label: {
+            HStack(spacing: 4) {
+                Text("コレクション")
+                    .font(.caption.bold())
+                Image(systemName: "chevron.up")
+                    .font(.caption2)
+            }
+            .foregroundStyle(.white)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 6)
+            .background(Color.black.opacity(0.4), in: Capsule())
+        }
+        .padding(.vertical, 8)
+        .frame(maxWidth: .infinity)
     }
 
     private func thumbnail(for asset: TwinfoldAsset) -> some View {

@@ -8,6 +8,13 @@ import TwinfoldCore
 struct MyRoomView: View {
     @State private var controller: RoomController
     @State private var showsFullList = false
+    /// User-controlled open/closed state of the bottom tray, kept for the
+    /// session only (not persisted). Closed = just a handle pill, so most
+    /// of the AR view is free for a screenshot of the placed collectibles.
+    @State private var isTrayOpen = true
+    /// `isTrayOpen` right before a holding preview auto-closed the tray,
+    /// so placing/cancelling can restore it instead of always reopening.
+    @State private var trayOpenBeforeHolding: Bool?
 
     init(provider: any AssetProvider) {
         _controller = State(initialValue: RoomController(provider: provider))
@@ -17,12 +24,27 @@ struct MyRoomView: View {
         ZStack {
             ARContainerView(controller: controller)
                 .ignoresSafeArea()
-            RoomOverlayView(controller: controller)
+            RoomOverlayView(controller: controller, isTrayOpen: isTrayOpen)
         }
         .safeAreaInset(edge: .bottom) {
-            AssetTrayView(controller: controller, showsFullList: $showsFullList)
+            AssetTrayView(controller: controller, showsFullList: $showsFullList, isOpen: $isTrayOpen)
         }
         .task { await controller.start() }
+        .onChange(of: controller.holdingAssetId) { oldValue, newValue in
+            // Auto-close the tray while a holding preview is being placed
+            // (so the preview is easier to see), and restore whatever
+            // open/closed state the user had once placement is confirmed
+            // or cancelled.
+            if oldValue == nil, newValue != nil {
+                trayOpenBeforeHolding = isTrayOpen
+                isTrayOpen = false
+            } else if oldValue != nil, newValue == nil {
+                if let trayOpenBeforeHolding {
+                    isTrayOpen = trayOpenBeforeHolding
+                }
+                trayOpenBeforeHolding = nil
+            }
+        }
         .sheet(isPresented: $showsFullList) {
             CollectionView(
                 assets: controller.ownedAssets,
