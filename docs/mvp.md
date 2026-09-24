@@ -38,12 +38,12 @@ MVPは、次を実証する。
 ## 3. P0
 
 - 権利上安全な実物の浮世絵・古版画1点（版元・絵師・出版年代が分かり、著作権消滅、摺り・退色等の状態評価ができるもの）
-- Vault入庫時に高解像スキャンで作成した実寸1:1の額装カード（画像と額の厚みを持つ。状態記録のoff-chain evidenceと表示データを兼ねる。買い手はスキャンせず、Object Captureも不要）
+- Vault入庫時に高解像スキャンで作成した実寸1:1の紙の表示（厚みや額を付けず、壁に貼った一枚の紙として見せる。状態記録のoff-chain evidenceと表示データを兼ねる。買い手はスキャンせず、Object Captureも不要）
 - Asset登録、Physical情報、evidence、rights、custody
 - Solana devnet上のMetaplex Core Asset
 - wallet署名、owner取得、実transfer
 - My Collection
-- iOS AR（SwiftUI + RealityKit + ARKit）でのPlace、Pull、Appear／Disappear。実寸表示（scaleを触らない）、壁（垂直面）への配置、環境光の一致、額の影を満たすこと
+- iOS AR（SwiftUI + RealityKit + ARKit）でのPlace、Pull、Appear／Disappear。実寸表示（scaleを触らない）、壁（垂直面）への密着配置、環境光の一致を満たすこと
 - Vaulted／Physical Ownership
 - redeem dry run、Asset失効、Provenance Passport
 - collectorとsupplierの検証
@@ -81,7 +81,7 @@ USDC purchaseはP0ではない。支払いとAsset移転をatomicに実装でき
 | Collection | 現在ownerのAssetだけをMy Collectionへ表示する |
 | iOS AR | SwiftUI／RealityKit／ARKit版が実機で起動し、camera、空中配置、回転・scaleが動く |
 | Spatial | 初見ユーザーがPlaceとPullを実行できる |
-| Spatial Fidelity | 主役（浮世絵、額装カード）は実寸（scaleを触らない）、壁（垂直面）への配置、環境光の一致、額の影を満たす。拡張（こけし、USDZ twin）は実寸、LiDAR遮蔽、接地影を満たす。いずれも実物コレクションの隣に置いて違和感がない |
+| Spatial Fidelity | 主役（浮世絵、紙の表示）は実寸（scaleを触らない）、壁（垂直面）への密着配置、環境光の一致を満たす。拡張（こけし、USDZ twin）は実寸、LiDAR遮蔽、接地影を満たす。いずれも実物コレクションの隣に置いて違和感がない |
 | Transfer | confirmed後5分以内に旧ownerから消え、新ownerへ反映する |
 | State | pending、confirmed、failedを区別し、失敗から復旧できる |
 | Redeem | 申請後に流通Assetをlock／burn／retireし、二重移転を防ぐ |

@@ -55,6 +55,26 @@ public enum AssetRepresentationEntity {
         return twin
     }
 
+    /// Same dispatch as `make(asset:)`, except a `card` asset renders as
+    /// `AssetCardEntity.makePaper(asset:)` — a flush, essentially
+    /// zero-thickness paper sheet — instead of the boxed
+    /// `AssetCardEntity.make(asset:)` card. `.model` (twin) assets are
+    /// unaffected: they delegate straight to `make(asset:)`, including its
+    /// thin-plate fallback.
+    ///
+    /// Used only by iOS's wall-placement flow (`RoomController`), which
+    /// always aims a `card` asset's holding preview at a wall. visionOS
+    /// (`ImmersiveGalleryView`) and any other caller should keep calling
+    /// `make(asset:)` directly, unchanged.
+    public static func makeForWallPlacement(asset: TwinfoldAsset) -> Entity {
+        guard case .model = asset.spatialRepresentation else {
+            let paper = AssetCardEntity.makePaper(asset: asset)
+            applyGroundingShadow(to: paper)
+            return paper
+        }
+        return make(asset: asset)
+    }
+
     /// `true` when `asset` renders as a real-world-scale USDZ twin (rather
     /// than the flat card) — i.e. whether pinch-to-scale should stay
     /// disabled so its size doesn't drift from the physical object's.
