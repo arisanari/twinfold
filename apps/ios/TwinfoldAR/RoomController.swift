@@ -59,8 +59,6 @@ private struct PlacementCoord {
     var transform: simd_float4x4
     var isWallPlacement: Bool
     var isFloorPlacement: Bool
-    var wallRight: SIMD3<Float>?
-    var wallUp: SIMD3<Float>?
     /// Wall: the card's real-world height (for top-edge snapping). Floor
     /// twin: the settled footprint height. Unused for an air placement.
     var footprintHeight: Float
@@ -69,9 +67,12 @@ private struct PlacementCoord {
 /// Owns placement, selection, holding-preview and simulated-transfer state
 /// for every asset in "My Room" (multiple assets at once, replacing the
 /// old one-asset-per-screen `ARSceneController`). `ARContainerView` drives
-/// this from ARKit tap/pan/per-frame events; this type only touches
-/// RealityKit entities, the `TwinfoldSpatial` factories, and
+/// this from ARKit tap/per-frame events; this type only touches RealityKit
+/// entities, the `TwinfoldSpatial` factories, and
 /// `ARWorldTrackingConfiguration.isSupported` for the simulator fallback.
+/// Repositioning an already-placed asset is "外す" (remove) + re-place from
+/// the tray — there's no drag/move mode, since the holding preview already
+/// makes picking a new spot easy.
 @MainActor
 @Observable
 final class RoomController {
@@ -88,10 +89,14 @@ final class RoomController {
     private(set) var loadErrorMessage: String?
 
     private(set) var holdingAssetId: String?
-    private(set) var movingAssetId: String?
     private(set) var selectedAssetId: String?
     private(set) var transferStates: [String: TransferState] = [:]
     private(set) var toast: TransferToast?
+    /// `true` once the current frame's raycast (during holding) found a
+    /// matching wall/surface for the held asset's representation. Drives
+    /// `hintText`'s "壁に向けてください" vs "タップして壁に掛ける" (and the
+    /// floor/desk equivalents).
+    private(set) var isPreviewDetected = false
 
     private var placementCoords: [String: PlacementCoord] = [:]
     private var liveEntities: [String: LiveEntity] = [:]
@@ -99,11 +104,9 @@ final class RoomController {
     private var previewAnchor: AnchorEntity?
     private var pendingPreviewTransform: simd_float4x4?
     private var pendingPreviewIsWall = false
-    private var pendingPreviewWallBasis: (right: SIMD3<Float>, up: SIMD3<Float>)?
     private var pendingPreviewCardHeight: Float = 0
 
     private static let placementDistance: Float = 0.4
-    private static let wallDragSensitivity: Float = 0.0015
     /// Top-edge height difference (meters) below which a newly-placed wall
     /// card snaps flush with an already-placed one.
     private static let wallSnapTolerance: Float = 0.03
@@ -157,12 +160,11 @@ final class RoomController {
             arView?.scene.removeAnchor(live.anchor)
             liveEntities[assetId] = nil
             if selectedAssetId == assetId { selectedAssetId = nil }
-            if movingAssetId == assetId { movingAssetId = nil }
         }
 
         for asset in ownedAssets {
             guard liveEntities[asset.id] == nil, let coord = placementCoords[asset.id] else { continue }
-            materialize(assetId: asset.id, asset: asset, transform: coord.transform, isWall: coord.isWallPlacement, wallBasis: coord.wallRight.map { ($0, coord.wallUp ?? SIMD3<Float>(0, 1, 0)) })
+            materialize(assetId: asset.id, asset: asset, transform: coord.transform, isWall: coord.isWallPlacement)
         }
     }
 
@@ -185,16 +187,23 @@ final class RoomController {
         guard let asset = ownedAssets.first(where: { $0.id == assetId }), let arView else { return }
         removePreviewOnly()
         selectedAssetId = nil
-        movingAssetId = nil
         holdingAssetId = assetId
         pendingPreviewTransform = nil
+        isPreviewDetected = false
 
         let entity = AssetRepresentationEntity.make(asset: asset)
-        // Reuses the pending look (semi-transparent) as the placement
-        // preview.
-        AssetCardEntity.apply(state: .pending, to: entity)
         let anchor = AnchorEntity(world: matrix_identity_float4x4)
         anchor.addChild(entity)
+        // A twin's own mesh origin isn't guaranteed to be its base (see
+        // `AssetRepresentationEntity.settleOnAnchor`); settle it here too,
+        // before the anchor even has a real position, so the preview
+        // already rests on whatever surface the anchor is moved to each
+        // frame instead of floating or clipping into it until confirmed.
+        // Rotation-invariant since only yaw is ever applied to the anchor.
+        if AssetRepresentationEntity.isTwin(asset) {
+            _ = AssetRepresentationEntity.settleOnAnchor(entity: entity, anchor: anchor)
+        }
+        AssetRepresentationEntity.setPreviewTranslucent(true, on: entity)
         arView.scene.addAnchor(anchor)
         previewAnchor = anchor
     }
@@ -203,6 +212,7 @@ final class RoomController {
         removePreviewOnly()
         holdingAssetId = nil
         pendingPreviewTransform = nil
+        isPreviewDetected = false
     }
 
     /// Called every frame (via `ARContainerView`'s scene-update
@@ -213,26 +223,45 @@ final class RoomController {
               let arView,
               let asset = ownedAssets.first(where: { $0.id == holdingAssetId }),
               let previewAnchor,
-              isARSupported else { return }
+              isARSupported else {
+            isPreviewDetected = false
+            return
+        }
 
         let point = CGPoint(x: arView.bounds.midX, y: arView.bounds.midY)
         let isTwin = AssetRepresentationEntity.isTwin(asset)
 
         if isTwin {
-            guard let hit = arView.raycast(from: point, allowing: .estimatedPlane, alignment: .horizontal).first,
-                  let cameraTransform = arView.session.currentFrame?.camera.transform else { return }
+            // `.existingPlaneGeometry` first: once ARKit has committed to a
+            // plane (typically after the user has looked at the floor/desk
+            // for a moment) it's far more stable than the estimate: falling
+            // straight to `.estimatedPlane` every frame produced a preview
+            // that never settled, which — combined with occlusion from the
+            // scene mesh — read as "no preview at all" on device.
+            // `.estimatedPlane` stays as the fallback for the first moment
+            // before a plane is registered.
+            guard let hit = arView.raycast(from: point, allowing: .existingPlaneGeometry, alignment: .horizontal).first
+                ?? arView.raycast(from: point, allowing: .estimatedPlane, alignment: .horizontal).first,
+                let cameraTransform = arView.session.currentFrame?.camera.transform else {
+                isPreviewDetected = false
+                return
+            }
             let transform = floorTransform(hit: hit, cameraTransform: cameraTransform)
             previewAnchor.transform = Transform(matrix: transform)
             pendingPreviewTransform = transform
             pendingPreviewIsWall = false
+            isPreviewDetected = true
         } else {
-            guard let hit = arView.raycast(from: point, allowing: .estimatedPlane, alignment: .vertical).first else { return }
-            let (transform, right, up) = wallTransform(hit: hit, asset: asset)
+            guard let hit = arView.raycast(from: point, allowing: .estimatedPlane, alignment: .vertical).first else {
+                isPreviewDetected = false
+                return
+            }
+            let transform = wallTransform(hit: hit, asset: asset)
             previewAnchor.transform = Transform(matrix: transform)
             pendingPreviewTransform = transform
             pendingPreviewIsWall = true
-            pendingPreviewWallBasis = (right, up)
             pendingPreviewCardHeight = AssetCardEntity.size(for: asset).height
+            isPreviewDetected = true
         }
     }
 
@@ -248,13 +277,11 @@ final class RoomController {
 
         var transform: simd_float4x4
         var isWall = false
-        var wallBasis: (right: SIMD3<Float>, up: SIMD3<Float>)?
         var cardHeight: Float = 0
 
         if let pendingPreviewTransform {
             transform = pendingPreviewTransform
             isWall = pendingPreviewIsWall
-            wallBasis = pendingPreviewWallBasis
             cardHeight = pendingPreviewCardHeight
         } else if isARSupported, let cameraTransform = arView.session.currentFrame?.camera.transform {
             transform = airTransform(cameraTransform: cameraTransform)
@@ -270,7 +297,8 @@ final class RoomController {
         removePreviewOnly()
         holdingAssetId = nil
         pendingPreviewTransform = nil
-        materialize(assetId: holdingId, asset: asset, transform: transform, isWall: isWall, wallBasis: wallBasis, cardHeightOverride: cardHeight)
+        isPreviewDetected = false
+        materialize(assetId: holdingId, asset: asset, transform: transform, isWall: isWall, cardHeightOverride: cardHeight)
         selectedAssetId = holdingId
     }
 
@@ -290,10 +318,6 @@ final class RoomController {
 
         if holdingAssetId != nil {
             confirmHolding()
-            return
-        }
-        if movingAssetId != nil {
-            finishMoving()
             return
         }
         if let hitEntity = arView.entity(at: point), let assetId = ownerAssetId(for: hitEntity) {
@@ -317,7 +341,6 @@ final class RoomController {
     func select(_ assetId: String) {
         guard liveEntities[assetId] != nil else { return }
         selectedAssetId = assetId
-        movingAssetId = nil
         applyHighlights()
     }
 
@@ -366,54 +389,6 @@ final class RoomController {
             column.removeFromParent()
             liveEntities[assetId]?.provenanceColumn = nil
         }
-    }
-
-    // MARK: - Move ("動かす")
-
-    /// Wall card: enters drag mode (`pan` slides it along the wall).
-    /// Twin: pulls it out of the scene and re-enters the holding-preview
-    /// flow so the user re-taps a new floor spot, since a twin was never
-    /// draggable (real-world scale, walk-around only).
-    func moveSelected() {
-        guard let assetId = selectedAssetId,
-              let asset = ownedAssets.first(where: { $0.id == assetId }) else { return }
-
-        if AssetRepresentationEntity.isTwin(asset) {
-            if let live = liveEntities[assetId] { arView?.scene.removeAnchor(live.anchor) }
-            liveEntities[assetId] = nil
-            placementCoords[assetId] = nil
-            selectedAssetId = nil
-            startHolding(assetId: assetId)
-        } else {
-            movingAssetId = assetId
-            selectedAssetId = nil
-        }
-    }
-
-    func finishMoving() {
-        guard let assetId = movingAssetId else { return }
-        movingAssetId = nil
-        selectedAssetId = assetId
-    }
-
-    /// One-finger drag while `movingAssetId` is set: slides that wall card
-    /// along its own plane. No-op otherwise (twins are moved by re-holding
-    /// instead — see `moveSelected`).
-    func pan(translationX: Float, translationY: Float) {
-        guard let assetId = movingAssetId,
-              let live = liveEntities[assetId],
-              let coord = placementCoords[assetId],
-              coord.isWallPlacement,
-              let right = coord.wallRight,
-              let up = coord.wallUp else { return }
-
-        let deltaRight = right * (translationX * Self.wallDragSensitivity)
-        let deltaUp = up * (-translationY * Self.wallDragSensitivity)
-        live.anchor.position += deltaRight + deltaUp
-
-        var updatedCoord = coord
-        updatedCoord.transform = live.anchor.transform.matrix
-        placementCoords[assetId] = updatedCoord
     }
 
     // MARK: - Remove ("外す")
@@ -538,7 +513,6 @@ final class RoomController {
         placementCoords.removeAll()
         transferStates.removeAll()
         selectedAssetId = nil
-        movingAssetId = nil
         cancelHolding()
         toast = nil
         activeWallet = .ownerA
@@ -562,16 +536,22 @@ final class RoomController {
         if let selectedAssetId, transferState(for: selectedAssetId) == .failed {
             return "送信に失敗。Retryを押す"
         }
-        if holdingAssetId != nil {
-            return isARSupported
-                ? "壁（または床）を検出。タップして置く"
-                : "AR非対応のため、タップすると固定位置に置きます"
-        }
-        if movingAssetId != nil {
-            return "ドラッグして動かす。タップで確定"
+        if let holdingAssetId {
+            guard isARSupported else {
+                return "AR非対応のため、タップすると固定位置に置きます"
+            }
+            let isTwin = ownedAssets.first(where: { $0.id == holdingAssetId }).map(AssetRepresentationEntity.isTwin) ?? false
+            if isTwin {
+                return isPreviewDetected ? "タップして机や床に置く" : "机や床に向けてください"
+            } else {
+                return isPreviewDetected ? "タップして壁に掛ける" : "壁に向けてください"
+            }
         }
         if selectedAssetId != nil {
             return "作品をタップすると来歴や送るが出ます"
+        }
+        if unplacedCount == 0 {
+            return "作品をタップすると来歴が見られます"
         }
         return "下から作品を選んで、壁に向ける"
     }
@@ -583,7 +563,6 @@ final class RoomController {
         asset: TwinfoldAsset,
         transform: simd_float4x4,
         isWall: Bool,
-        wallBasis: (right: SIMD3<Float>, up: SIMD3<Float>)?,
         cardHeightOverride: Float = 0
     ) {
         guard let arView else { return }
@@ -595,9 +574,7 @@ final class RoomController {
         var twinFootprint: (width: Float, height: Float)?
         let isTwin = AssetRepresentationEntity.isTwin(asset)
         if isTwin {
-            let bounds = entity.visualBounds(relativeTo: anchor)
-            entity.position.y -= bounds.min.y
-            twinFootprint = (bounds.extents.x, bounds.extents.y)
+            twinFootprint = AssetRepresentationEntity.settleOnAnchor(entity: entity, anchor: anchor)
         }
 
         liveEntities[assetId] = LiveEntity(anchor: anchor, cardEntity: entity, provenanceColumn: nil, twinFootprint: twinFootprint)
@@ -612,8 +589,6 @@ final class RoomController {
             transform: transform,
             isWallPlacement: isWall,
             isFloorPlacement: isTwin,
-            wallRight: wallBasis?.right,
-            wallUp: wallBasis?.up,
             footprintHeight: isWall ? cardHeightOverride : (twinFootprint?.height ?? 0)
         )
         applyHighlights()
@@ -658,7 +633,7 @@ final class RoomController {
         return transform
     }
 
-    private func wallTransform(hit: ARRaycastResult, asset: TwinfoldAsset) -> (simd_float4x4, SIMD3<Float>, SIMD3<Float>) {
+    private func wallTransform(hit: ARRaycastResult, asset: TwinfoldAsset) -> simd_float4x4 {
         let cardSize = AssetCardEntity.size(for: asset)
         let hitTransform = hit.worldTransform
         let rawNormal = SIMD3<Float>(hitTransform.columns.1.x, hitTransform.columns.1.y, hitTransform.columns.1.z)
@@ -676,7 +651,7 @@ final class RoomController {
         transform.columns.1 = SIMD4<Float>(up, 0)
         transform.columns.2 = SIMD4<Float>(forward, 0)
         transform.columns.3 = SIMD4<Float>(position, 1)
-        return (transform, right, up)
+        return transform
     }
 
     private func floorTransform(hit: ARRaycastResult, cameraTransform: simd_float4x4) -> simd_float4x4 {

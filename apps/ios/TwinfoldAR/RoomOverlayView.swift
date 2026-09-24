@@ -1,11 +1,12 @@
 import SwiftUI
 import TwinfoldCore
 
-/// AR screen chrome above the tray: DEMO DATA/DEVNET badge, overflow menu
-/// (wallet switch, simulate-failure, reset), a 1-line hint describing the
-/// current state, holding/moving controls, the selected-asset operation
-/// card, and the post-transfer toast. Contains no ARKit/RealityKit calls;
-/// only reads `RoomController` state.
+/// AR screen chrome above the tray: DEMO DATA/DEVNET badge, the active
+/// wallet chip, overflow menu (wallet switch, simulate-failure, reset), a
+/// 1-line hint describing the current state, the holding-preview cancel
+/// control, the selected-asset operation card, and the post-transfer
+/// toast. Contains no ARKit/RealityKit calls; only reads `RoomController`
+/// state.
 struct RoomOverlayView: View {
     let controller: RoomController
 
@@ -28,10 +29,6 @@ struct RoomOverlayView: View {
                     hintBar
                     Button("キャンセル") { controller.cancelHolding() }
                         .buttonStyle(.bordered)
-                } else if controller.movingAssetId != nil {
-                    hintBar
-                    Button("完了") { controller.finishMoving() }
-                        .buttonStyle(.borderedProminent)
                 } else if let selectedAssetId = controller.selectedAssetId,
                           let asset = controller.ownedAssets.first(where: { $0.id == selectedAssetId }) {
                     // No separate hint bar while the operation card is
@@ -129,14 +126,24 @@ struct RoomOverlayView: View {
                 HStack(spacing: 8) {
                     Button("来歴") { controller.pullProvenanceForSelected() }
                         .buttonStyle(.bordered)
-                    Button("動かす") { controller.moveSelected() }
-                        .buttonStyle(.bordered)
                     Button("外す") { controller.removeSelected() }
                         .buttonStyle(.bordered)
-                    Button("\(controller.destinationLabelForSelected)へ送る") {
-                        controller.sendSelected()
+                    Spacer(minLength: 8)
+                    // "送る" lives in this secondary menu (not a primary
+                    // button) so it isn't the first thing tapped by
+                    // accident, but it's still inside the card — not only
+                    // in the top-right overflow — so a first-time user
+                    // still finds it while looking at the selected asset.
+                    Menu {
+                        Button("\(controller.destinationLabelForSelected)へ送る (demo)") {
+                            controller.sendSelected()
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
+                            .font(.title3)
+                            .foregroundStyle(.white)
+                            .padding(6)
                     }
-                    .buttonStyle(.borderedProminent)
                 }
             case .pending:
                 Button("送信中…") {}

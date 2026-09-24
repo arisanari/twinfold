@@ -8,10 +8,9 @@ import SwiftUI
 /// horizontal-plane detection — vertical so a `card` asset, a framed print,
 /// can be placed flush against a detected wall; horizontal so a `model`
 /// twin can be stood on a detected floor/table/shelf), the per-frame
-/// holding-preview update, and the tap (select/confirm placement/finish
-/// move) and pan (slide a wall card while moving) gestures. All Twinfold
-/// entity creation and transform math is delegated to `TwinfoldSpatial` /
-/// `RoomController`.
+/// holding-preview update, and the tap (select / confirm placement)
+/// gesture. All Twinfold entity creation and transform math is delegated
+/// to `TwinfoldSpatial` / `RoomController`.
 struct ARContainerView: UIViewRepresentable {
     let controller: RoomController
 
@@ -45,14 +44,6 @@ struct ARContainerView: UIViewRepresentable {
         tapGesture.delegate = context.coordinator
         arView.addGestureRecognizer(tapGesture)
 
-        let panGesture = UIPanGestureRecognizer(
-            target: context.coordinator,
-            action: #selector(Coordinator.handlePan(_:))
-        )
-        panGesture.maximumNumberOfTouches = 1
-        panGesture.delegate = context.coordinator
-        arView.addGestureRecognizer(panGesture)
-
         // Drives the holding-preview raycast every frame so the
         // translucent preview tracks the wall/floor under the screen
         // center while the user walks around before tapping to confirm.
@@ -82,18 +73,6 @@ struct ARContainerView: UIViewRepresentable {
             guard let arView = recognizer.view as? ARView else { return }
             let point = recognizer.location(in: arView)
             controller.handleTap(at: point)
-        }
-
-        /// One-finger drag: only meaningful while `movingAssetId` is set
-        /// (see `RoomController.moveSelected`/`pan`); no-op otherwise.
-        /// `translation` is reset to zero after each `.changed` callback,
-        /// so each call only carries the incremental movement since the
-        /// previous one.
-        @objc func handlePan(_ recognizer: UIPanGestureRecognizer) {
-            guard recognizer.state == .changed, let view = recognizer.view else { return }
-            let translation = recognizer.translation(in: view)
-            controller.pan(translationX: Float(translation.x), translationY: Float(translation.y))
-            recognizer.setTranslation(.zero, in: view)
         }
 
         func gestureRecognizer(
