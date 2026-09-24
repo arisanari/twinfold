@@ -31,3 +31,15 @@
 備考: WebSearch多数実行（track/prize内訳、judge、deadline、RWA/collectibles関連を含む）したが、2026-09-22ログ以降の新規発表・変更は確認できず。ヒットした情報（Solana/Hyperliquid/Tempo/Zcash各$100K、Ethereum/Base/Arbitrum/Robinhood各$25K、judge陣の言及等）はいずれも9月中旬の開催告知時点の情報の再掲。blog.colosseum.comへの直接アクセスは `EGRESS_BLOCKED` のためWebSearch要約経由のみで確認。track追加、judge新任、締切変更、提出項目変更、審査観点変更のいずれも無し。
 
 未取得: X（Chrome未接続）、Discord（同上）
+
+### 2026-09-24
+
+新着なし（確認先: blog.colosseum.com、colosseum.com/worldsfair、colosseum.com/hackathon?year=fall2026、WebSearch直近ニュース）
+
+| 影響 | 項目 | 要点 | 出典 |
+|---|---|---|---|
+| なし | 新着確認 | blog／worldsfair／hackathonページへの直接アクセスはこのcloud環境のegress proxyで `EGRESS_BLOCKED`。WebSearchで代替確認したが、ヒットしたのはいずれも2026-09-14のCrypto World's Fair開始発表時点の情報（$800K賞金、$2.5M出資、Solana／Tempo等各trackの賞金、judge陣Phil Kwok・Anatoly Yakovenko・Cali Liu、Superteam Ukraine Demo Day 10/9-10/10）の再掲で、2026-09-23以降の新規発表・変更は確認できず | WebSearch（"Crypto World's Fair" 2026等）|
+
+備考: 前回まではX／Discordのみ「未取得」だったが、今回はblog.colosseum.com・colosseum.com/worldsfair・colosseum.com/hackathonへの直接fetch自体がegress proxyでブロックされ、WebSearchの要約経由のみで確認した（Hall of Fameも同ドメインのため未取得扱い）。track追加、judge新任、締切変更、提出項目変更、審査観点変更、壁に掛ける浮世絵・版画／RWA／AR分野への直接言及のいずれも見つからず、戦略変更候補はなし。
+
+未取得: X（Chrome未接続）、Discord（同上）、blog.colosseum.com／colosseum.com/worldsfair／colosseum.com/hackathonの直接fetch（cloud環境のegress proxyでブロック）
