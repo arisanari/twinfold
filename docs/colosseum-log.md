@@ -43,3 +43,13 @@
 備考: 前回まではX／Discordのみ「未取得」だったが、今回はblog.colosseum.com・colosseum.com/worldsfair・colosseum.com/hackathonへの直接fetch自体がegress proxyでブロックされ、WebSearchの要約経由のみで確認した（Hall of Fameも同ドメインのため未取得扱い）。track追加、judge新任、締切変更、提出項目変更、審査観点変更、壁に掛ける浮世絵・版画／RWA／AR分野への直接言及のいずれも見つからず、戦略変更候補はなし。
 
 未取得: X（Chrome未接続）、Discord（同上）、blog.colosseum.com／colosseum.com/worldsfair／colosseum.com/hackathonの直接fetch（cloud環境のegress proxyでブロック）
+
+### 2026-09-25
+
+| 影響 | 項目 | 要点 | 出典 |
+|---|---|---|---|
+| なし | 新着確認 | blog.colosseum.com／colosseum.com/worldsfair／colosseum.com/hackathonへの直接アクセスは引き続きこのcloud環境のegress proxyで `EGRESS_BLOCKED`。WebSearchで複数クエリ（"Crypto World's Fair" 2026、judge／締切変更、RWA track等）を確認したが、2026-09-24ログ以降の新規記事・変更は見つからず。ヒットしたのは既知の告知内容（9/14開始、10/12提出締切、賞金$840K前後、Solana／Tempo／Ethereum等のtrack）の再掲のみ | https://colosseum.com/worldsfair, https://cryptobriefing.com/colosseum-crypto-worlds-fair-hackathon/ |
+
+備考: track追加、judge新任、締切変更、提出項目変更、審査観点変更、壁に掛ける浮世絵・版画／RWA／AR分野への直接言及のいずれも見つからず、戦略変更候補はなし。WebSearchが新着を検出しないことは検索インデックス反映の遅れによる可能性もあり、新着が本当に無いことの確定的な証拠ではない点に留意。
+
+未取得: X（Chrome未接続）、Discord（同上）、blog.colosseum.com／colosseum.com/worldsfair／colosseum.com/hackathonの直接fetch（cloud環境のegress proxyでブロック）
