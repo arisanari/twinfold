@@ -90,6 +90,7 @@ docs/           実装側の正本（mvp、build-order、architecture）
 |---|---|---|
 | `implementer` | sonnet | 指示された実装を行い、build を通してdiffと検証結果を返す。`core-contract`／`ios-realitykit-ar` を先読み |
 | `code-reviewer` | sonnet | 境界、fixture区別、Entitlement、冪等性の読み取り専用レビュー |
+| `ukiyoe-appraiser` | sonnet | 浮世絵の画像から落款・版元印・改印・判型を読み、所蔵館の記録と照合して背景を確度付きで返す調査メモ。鑑定ではない。`ukiyoe-domain` を先読み |
 | `doc-consistency` | sonnet | README、docs/、AGENTS.md、Notion要約、Project 5 Issueの矛盾検出（未作成） |
 | `claims-reviewer` | sonnet | UI文言、README、Pitch、Landingの禁止表現検査（未作成） |
 | `build-verifier` | haiku | Web build／lint、iOS／visionOSの `xcodebuild`、`swift build` の結果だけ返す（未作成） |
@@ -101,7 +102,8 @@ docs/           実装側の正本（mvp、build-order、architecture）
 | `today` | 本体 | 今日の分解、GitHub Project 5同期、Notionの読み書き |
 | `core-contract` | implementerが読む知識 | 共通モデルとfixtureをWebとSwift Package（iOS・visionOS共有）で同時に整合させる手順 |
 | `ios-realitykit-ar` | implementerが読む知識 | SwiftUI + RealityKit + ARKitのiPhone AR構成、共有Swift Package、build、実機チェック |
-| `solana-devnet` | implementerが読む知識 | Metaplex Core、Helius DAS、Event正規化、test wallet（未作成、Phase 2前に作る） |
+| `solana-devnet` | implementerが読む知識 | Metaplex Core、Helius DAS、Event正規化、test wallet |
+| `ukiyoe-domain` | ukiyoe-appraiser／implementerが読む知識 | 落款・版元印・改印の読み方、判型と実寸、状態評価の語彙、照合先DB、画像の権利、fixtureへの対応と禁止表現 |
 | `colosseum-research` | fork、sonnet | 入賞パターン調査。一回限り |
 | `e2e-evidence` | fork、sonnet | E2E証拠収集、weekly update生成（未作成） |
 | `submission` | fork、sonnet | 提出チェック、事前開発の開示、clean clone再現（未作成） |
