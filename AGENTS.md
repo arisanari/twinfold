@@ -101,7 +101,7 @@ docs/           実装側の正本（mvp、build-order、architecture）
 | `today` | 本体 | 今日の分解、GitHub Project 5同期、Notionの読み書き |
 | `core-contract` | implementerが読む知識 | 共通モデルとfixtureをWebとSwift Package（iOS・visionOS共有）で同時に整合させる手順 |
 | `ios-realitykit-ar` | implementerが読む知識 | SwiftUI + RealityKit + ARKitのiPhone AR構成、共有Swift Package、build、実機チェック |
-| `solana-devnet` | implementerが読む知識 | Metaplex Core、Helius DAS、Event正規化、test wallet（未作成、Phase 2前に作る） |
+| `solana-devnet` | implementerが読む知識 | Metaplex Core、Helius DAS、Event正規化、test wallet |
 | `colosseum-research` | fork、sonnet | 入賞パターン調査。一回限り |
 | `e2e-evidence` | fork、sonnet | E2E証拠収集、weekly update生成（未作成） |
 | `submission` | fork、sonnet | 提出チェック、事前開発の開示、clean clone再現（未作成） |

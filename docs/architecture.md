@@ -581,6 +581,7 @@ MVP外:
 実装前に確定する事項:
 
 - Solana transactionから復元するEvent範囲とRPC／DAS provider
+  - 暫定決定（2026-09-26）: Metaplex Coreは`getSignaturesForAsset`が使えない（compressed asset専用でCore assetには`Tree not found`が返る）ため、標準RPCの`getSignaturesForAddress`を使う。最古のtransactionを`minted`、以降をすべて`transferred`とみなす簡易判定で、instruction decodeによるmetadata更新との区別はしていない。実transfer実装時（Issue #29）にinstruction decodeで区別する。
 - Spatial ClientとBackend間のAPI schemaおよび更新通知方式
 - ARKitの永続anchor、対応iPhone範囲
 - TestFlightを使うか、対面Development Buildに限定するか
